@@ -2,6 +2,10 @@
 
 To see it in action, run `live-server` from the repo directory
 
+# Compiling WASM
+
+Run `make` to build main.wasm
+
 # TODO
 
 * [ ] Add user input
