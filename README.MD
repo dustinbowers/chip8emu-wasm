@@ -1,12 +1,14 @@
 # Chip8 Emulator w/ WebAssembly
 
+This project wraps my [chip8emu](https://github.com/dustinbowers/chip8emu) repository with WebAssembly to be executed in-browser.
+
 To see it in action, run `live-server` from the repo directory
 
-# Compiling WASM
+## Compiling WASM
 
 Run `make` to build main.wasm
 
-# TODO
+## TODO
 
 * [ ] Add user input
 * [ ] Add reset button
