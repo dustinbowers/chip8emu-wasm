@@ -9,7 +9,7 @@
     function resume() {}
 
     function loadWasm() {
-        return WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(result => {
+        return WebAssembly.instantiateStreaming(fetch("chip8.wasm"), go.importObject).then(result => {
             go.run(result.instance);
         });
     }

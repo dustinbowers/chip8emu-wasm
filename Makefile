@@ -23,5 +23,5 @@ build: copy-support
 	go build ${GO_BUILD_FLAGS} main.go
 
 build-wasm: copy-support
-	GOOS=js GOARCH=wasm go build ${GO_BUILD_FLAGS} -o main.wasm
+	GOOS=js GOARCH=wasm go build ${GO_BUILD_FLAGS} -o chip8.wasm
 
