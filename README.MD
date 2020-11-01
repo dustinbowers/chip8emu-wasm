@@ -14,3 +14,6 @@ Run `make` to build main.wasm
 * [ ] Add reset button
 * [ ] Add loading of different roms
 
+## Useful links
+
+* Ebiten 2D game library - https://ebiten.org/
