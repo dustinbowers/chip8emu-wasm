@@ -6,7 +6,7 @@ To see it in action visit: https://dustinbowers.com/chip8 or run `live-server` f
 
 ## Compiling WASM
 
-Run `make` to build main.wasm
+Run `make` to build chip8.wasm
 
 ## TODO
 
