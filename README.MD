@@ -2,7 +2,7 @@
 
 This project wraps my [chip8emu](https://github.com/dustinbowers/chip8emu) with WebAssembly to be executed in-browser.
 
-To see it in action, run `live-server` from the repo directory
+To see it in action visit: https://dustinbowers.com/chip8 or run `live-server` from the repo directory
 
 ## Compiling WASM
 
