@@ -1,144 +1,112 @@
-//+build wasm
+//+build wasm, darwin
 
 package main
 
 import (
-	"fmt"
 	"github.com/dustinbowers/chip8emu/chip8"
+	"github.com/hajimehoshi/ebiten/v2"
+	"image"
 	"log"
-	"syscall/js"
-	"time"
 )
 
 const (
-	width  = 800
-	height = 400
-	hz     = 700
+	screenWidth  = 64
+	screenHeight = 32
+	hz           = 700
 )
 
-var (
-	document js.Value
-	canvas   js.Value
-	context  js.Value
-	emu      *chip8.Chip8
-	running  bool
-)
-
-func init() {
-	document = js.Global().Get("document")
+type Game struct {
+	Screen  *image.RGBA
+	Emu     *chip8.Chip8
+	Running bool
 }
 
-func main() {
-	fmt.Println("WASM loaded.")
-	emu = chip8.NewChip8()
-
-	js.Global().Set("setTarget", setTargetWrapper())
-	js.Global().Set("resetChip8", resetChip8Wrapper())
-	js.Global().Set("pause", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		emu.Pause()
-		return nil
-	}))
-	js.Global().Set("resume", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		emu.Resume()
-		return nil
-	}))
-	js.Global().Set("inspect", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		return emu.Inspect()
-	}))
-
-	js.Global().Set("keyDown", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		k := args[0]
-		emu.KeyDown(uint8(k.Int()))
-		return nil
-	}))
-	js.Global().Set("keyUp", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		k := args[0]
-		emu.KeyUp(uint8(k.Int()))
-		return nil
-	}))
-
-	<-make(chan bool)
+var KeyMap = map[ebiten.Key]uint8{
+	ebiten.Key1: 0x1,
+	ebiten.Key2: 0x2,
+	ebiten.Key3: 0x3,
+	ebiten.Key4: 0xC,
+	ebiten.KeyQ: 0x4,
+	ebiten.KeyW: 0x5,
+	ebiten.KeyE: 0x6,
+	ebiten.KeyR: 0xD,
+	ebiten.KeyA: 0x7,
+	ebiten.KeyS: 0x8,
+	ebiten.KeyD: 0x9,
+	ebiten.KeyF: 0xE,
+	ebiten.KeyZ: 0xA,
+	ebiten.KeyX: 0x0,
+	ebiten.KeyC: 0xB,
+	ebiten.KeyV: 0xF,
 }
 
-func resetChip8(romBytes []byte) {
-	emu.Reset()
-	emu.SetBeepHandler(func(t bool) { fmt.Println("BEEEP") })
-	emu.LoadRomBytes(romBytes)
-	fmt.Printf("Loaded %d bytes into memory\n", len(romBytes))
-
-	runEmu(hz)
-}
-func resetChip8Wrapper() js.Func {
-	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		array := args[0]
-		buf := make([]byte, array.Get("length").Int())
-		n := js.CopyBytesToGo(buf, args[0])
-		fmt.Printf("Bytes copied: %d\n", n)
-		resetChip8(buf)
-		return nil
-	})
-}
-
-func runEmu(hz int64) {
-	running = true
-	go func() {
-		for {
-			_, err := emu.EmulateCycle()
-			if err != nil {
-				log.Fatalf("emu.EmulateCycle: %v", err)
-			}
-			if running == false {
-				return
-			}
-			time.Sleep(time.Second / time.Duration(hz))
+func (g *Game) HandleInput() {
+	for k, v := range KeyMap {
+		if ebiten.IsKeyPressed(k) {
+			g.Emu.KeyDown(v)
+		} else {
+			g.Emu.KeyUp(v)
 		}
-	}()
+	}
+}
 
-	go func() {
-		for {
-			if emu.DrawFlag {
-				emu.DrawFlag = false
+func (g *Game) Update() error {
+	if g.Running {
+		g.HandleInput()
+		_, err := g.Emu.EmulateCycle()
+		if err != nil {
+			log.Fatalf("emu.EmulateCycle: %v", err)
+		}
+	}
+	if g.Emu.DrawFlag {
+		g.Emu.DrawFlag = false
 
-				// Render Screen
-				context.Call("clearRect", 0, 0, width, height)
-				blockWidth := int32(width / 64)
-				blockHeight := int32(height / 32)
-				for c, col := range emu.Screen {
-					for r, on := range col {
-						xPos := int32(c) * blockWidth
-						yPos := int32(r) * blockHeight
-
-						if on == 1 {
-							context.Set("fillStyle", "#FFFFFF")
-						} else {
-							context.Set("fillStyle", "#000000")
-						}
-						context.Call("fillRect", xPos, yPos, blockWidth, blockHeight)
-					}
+		// Render Screen
+		for c, col := range g.Emu.Screen {
+			for r, on := range col {
+				offset := 4*((r*screenWidth)+c)
+				if offset >= 8188 {
+					offset = 8188
+				}
+				if on >= 1 {
+					g.Screen.Pix[offset+0] = 0xFF
+					g.Screen.Pix[offset+1] = 0xFF
+					g.Screen.Pix[offset+2] = 0xFF
+					g.Screen.Pix[offset+3] = 0xFF
+				} else {
+					g.Screen.Pix[offset+0] = 0x00
+					g.Screen.Pix[offset+1] = 0x00
+					g.Screen.Pix[offset+2] = 0x00
+					g.Screen.Pix[offset+3] = 0x00
 				}
 			}
-			time.Sleep(time.Microsecond * 16700)
 		}
-	}()
+	}
+	return nil
 }
 
-func setTarget(target string) {
-	canvas = js.
-		Global().
-		Get("document").
-		Call("getElementById", target)
-
-	context = canvas.Call("getContext", "2d")
-
-	// reset
-	canvas.Set("height", height)
-	canvas.Set("width", width)
-	context.Call("clearRect", 0, 0, width, height)
-
+func (g *Game) Draw(screen *ebiten.Image) {
+	screen.ReplacePixels(g.Screen.Pix)
+	//ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f", ebiten.CurrentTPS()))
 }
-func setTargetWrapper() js.Func {
-	return js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		setTarget(args[0].String())
-		return nil
-	})
+
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	return screenWidth, screenHeight
+}
+
+var g *Game
+func main() {
+	ebiten.SetWindowSize(screenWidth*2, screenHeight*2)
+	ebiten.SetWindowTitle("Chip8 Emulator")
+	ebiten.SetMaxTPS(hz)
+	g = &Game{
+		Screen: image.NewRGBA(image.Rect(0, 0, screenWidth, screenHeight)),
+		Emu: chip8.NewChip8(),
+		Running: false,
+	}
+	addSupport()
+
+	if err := ebiten.RunGame(g); err != nil {
+		log.Fatal(err)
+	}
 }
