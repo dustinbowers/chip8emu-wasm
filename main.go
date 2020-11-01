@@ -63,9 +63,6 @@ func (g *Game) Update() error {
 		for c, col := range g.Emu.Screen {
 			for r, on := range col {
 				offset := 4*((r*screenWidth)+c)
-				if offset >= 8188 {
-					offset = 8188
-				}
 				if on >= 1 {
 					g.Screen.Pix[offset+0] = 0xFF
 					g.Screen.Pix[offset+1] = 0xFF
