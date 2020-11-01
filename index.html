@@ -1,61 +1,37 @@
 <!DOCTYPE html>
-    <script src="wasm_exec.js"></script>
-    <script>
-        const go = new Go()
+<script src="wasm_exec.js"></script>
+<script>
+    const go = new Go()
 
-        // "exports"
-        function resetChip8() {}
-        function pause() {}
-        function resume() {}
+    // "exports"
+    function resetChip8() {}
+    function pause() {}
+    function resume() {}
 
-        const keyMap = {
-            "1": 0x1, "2": 0x2, "3": 0x3, "4": 0xC,
-            "q": 0x4, "w": 0x5, "e": 0x6, "r": 0xD,
-            "a": 0x7, "s": 0x8, "d": 0x9, "f": 0xE,
-            "z": 0xA, "x": 0x0, "c": 0xB, "v": 0xF,
-        }
+    function loadWasm() {
+        return WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(result => {
+            go.run(result.instance);
+        });
+    }
 
-        // function createKeyListeners() {
-        //     document.addEventListener("keydown", function onEvent(event) {
-        //         if (!(event.key in keyMap)) {
-        //             return
-        //         }
-        //         keyDown(keyMap[event.key])
-        //     })
-        //     document.addEventListener("keyup", function onEvent(event) {
-        //         if (!(event.key in keyMap)) {
-        //             return
-        //         }
-        //         keyUp(keyMap[event.key])
-        //     })
-        // }
+    function loadRom(id) {
+        pause();
+        let oReq = new XMLHttpRequest()
+        oReq.open("GET", "/roms/games/Space%20Invaders%20%5BDavid%20Winter%5D.ch8", true)
+        oReq.responseType = "arraybuffer"
 
-        function loadWasm() {
-            return WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(result => {
-                go.run(result.instance);
-            });
-        }
-
-        function loadRom(id) {
-            pause();
-            let oReq = new XMLHttpRequest()
-            oReq.open("GET", "/roms/games/Space%20Invaders%20%5BDavid%20Winter%5D.ch8", true)
-            oReq.responseType = "arraybuffer"
-
-            oReq.onload = function (oEvent) {
-                const arrayBuffer = oReq.response
-                if (arrayBuffer) {
-                    const byteArray = new Uint8Array(arrayBuffer)
-                    resetChip8(byteArray)
-                }
-                resume();
+        oReq.onload = function (oEvent) {
+            const arrayBuffer = oReq.response
+            if (arrayBuffer) {
+                const byteArray = new Uint8Array(arrayBuffer)
+                resetChip8(byteArray)
             }
-
-            oReq.send(null)
+            resume();
         }
 
-        loadWasm()
-            .then(() => { loadRom(1) })
-    </script>
-</body>
-</html>
+        oReq.send(null)
+    }
+
+    loadWasm()
+        .then(() => { loadRom(1) })
+</script>

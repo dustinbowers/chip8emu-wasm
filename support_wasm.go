@@ -6,7 +6,7 @@ import (
 	"syscall/js"
 )
 
-func addSupport() {
+func (g *Game) addSupport() {
 	js.Global().Set("pause", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		g.Emu.Pause()
 		return nil

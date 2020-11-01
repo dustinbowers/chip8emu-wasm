@@ -1,5 +1,3 @@
-//+build wasm, darwin
-
 package main
 
 import (
@@ -104,7 +102,7 @@ func main() {
 		Emu: chip8.NewChip8(),
 		Running: false,
 	}
-	addSupport()
+	g.addSupport()
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
