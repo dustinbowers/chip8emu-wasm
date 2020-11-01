@@ -1,6 +1,6 @@
 # Chip8 Emulator w/ WebAssembly
 
-This project wraps my [chip8emu](https://github.com/dustinbowers/chip8emu) repository with WebAssembly to be executed in-browser.
+This project wraps my [chip8emu](https://github.com/dustinbowers/chip8emu) with WebAssembly to be executed in-browser.
 
 To see it in action, run `live-server` from the repo directory
 
