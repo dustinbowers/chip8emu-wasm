@@ -10,7 +10,7 @@ Run `make` to build main.wasm
 
 ## TODO
 
-* [ ] Add user input
+* [X] Add user input
 * [ ] Add reset button
 * [ ] Add loading of different roms
 
