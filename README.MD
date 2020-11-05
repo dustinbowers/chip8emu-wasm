@@ -2,13 +2,17 @@
 
 This project wraps my [chip8emu](https://github.com/dustinbowers/chip8emu) with WebAssembly to be executed in-browser.
 
-To see it in action visit: https://dustinbowers.com/chip8 or run `live-server` from the repo directory.
+## Live Demo
 
-Live-server can be downloaded with `npm install -g live-server`
+Visit: https://dustinbowers.com/chip8
 
-## Compiling WASM
+## Compiling WASM / Running
 
 Run `make` to build chip8.wasm
+
+Install live-server with `npm install -g live-server`
+
+Run `live-server` from the repo directory
 
 ## TODO
 
