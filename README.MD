@@ -1,6 +1,6 @@
-# Chip8 Emulator w/ WebAssembly
+# Chip-8 Emulator w/ WebAssembly
 
-This project wraps my [chip8emu](https://github.com/dustinbowers/chip8emu) with WebAssembly to be executed in-browser.
+This project wraps my [Chip-8 Emulator](https://github.com/dustinbowers/chip8emu) with WebAssembly to be executed in-browser.
 
 ## Live Demo
 
@@ -22,4 +22,5 @@ Run `live-server` from the repo directory
 
 ## Useful links
 
+* https://en.wikipedia.org/wiki/CHIP-8
 * Ebiten 2D game library - https://ebiten.org/
