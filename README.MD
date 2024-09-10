@@ -4,7 +4,7 @@ This project wraps my [Chip-8 Emulator](https://github.com/dustinbowers/chip8emu
 
 ## Live Demo
 
-Visit: https://dustinbowers.com/chip8
+https://dustinbowers.com/go-chip8
 
 ## Compiling WASM / Running
 
